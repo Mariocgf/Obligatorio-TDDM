@@ -1,0 +1,10 @@
+.tabs-style {
+  min-height: 100vh;
+}
+
+.fix{
+    position: fixed;
+    /* bottom: 0px; */
+}
+
+#map { height: 100vh; }
