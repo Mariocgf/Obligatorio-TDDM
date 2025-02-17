@@ -101,6 +101,40 @@ function confirm() {
     const input = document.querySelector('ion-input');
     MODAL.dismiss(input.value, 'confirm');
 }
+function MostrarListaActividades(){
+    LISTA_ACTIVIDADES.innerHTML = "";
+    let actividades = JSON.parse(localStorage.getItem("actividades"));
+    actividades.forEach(elem => {
+        LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
+    })
+}
+
+function PrenderLoading(texto) {
+    loading.cssClass = 'my-custom-class';
+    loading.message = texto;
+    //loading.duration = 2000;
+    document.body.appendChild(loading);
+    loading.present();
+}
+
+function Alertar(titulo, subtitulo, mensaje) {
+    const alert = document.createElement('ion-alert');
+    alert.cssClass = 'my-custom-class';
+    alert.header = titulo;
+    alert.subHeader = subtitulo;
+    alert.message = mensaje;
+    alert.buttons = ['OK'];
+    document.body.appendChild(alert);
+    alert.present();
+}
+
+function MostrarToast(mensaje, duracion) {
+    const toast = document.createElement('ion-toast');
+    toast.message = mensaje;
+    toast.duration = duracion;
+    document.body.appendChild(toast);
+    toast.present();
+}
 
 MODAL.addEventListener('willDismiss', (event) => {
     if (event.detail.role === 'confirm') {
