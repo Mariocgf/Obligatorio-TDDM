@@ -26,14 +26,6 @@ async function DoFetch(endpoint, method, body, header, param) {
         throw new Error(response.status);
     }
 }
-function SetMaxFecha() {
-    let fecha = new Date()
-    let anio = fecha.getFullYear();
-    let mes = fecha.getMonth() + 1;
-    let dia = fecha.getDate();
-    INPUT_FECHA.max = `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
-    INPUT_FECHA.value = `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
-}
 async function Logout() {
     localStorage.clear();
     await GetPaises();
@@ -49,94 +41,12 @@ function SaveSession(data, usuario) {
     localStorage.setItem("name", usuario)
 }
 
-function CreateItemSliding(elem) {
-    let ionItemSliding = document.createElement('ion-item-sliding');
-
-    let ionItem = document.createElement('ion-item');
-    let ionThumbnail = document.createElement('ion-thumbnail');
-    ionThumbnail.setAttribute('slot', 'start');
-
-    let img = document.createElement('img');
-    img.setAttribute('alt', elem.nombre);
-    img.setAttribute('src', `${URL_IMG + elem.imagen}.png`);
-
-    let ionLabel = document.createElement('ion-label');
-    ionLabel.innerHTML = `${elem.nombre} - ${elem.tiempo} - ${elem.fecha}`;
-
-    ionThumbnail.appendChild(img);
-    ionItem.appendChild(ionThumbnail);
-    ionItem.appendChild(ionLabel);
-
-    let ionItemOptions = document.createElement('ion-item-options');
-    ionItemOptions.setAttribute('side', 'end');
-
-    let ionItemOption = document.createElement('ion-item-option');
-    ionItemOption.setAttribute('color', 'danger');
-    ionItemOption.setAttribute('onClick', `DeleteRegistro(${elem.id})`);
-
-    let ionIcon = document.createElement('ion-icon');
-    ionIcon.setAttribute('slot', 'icon-only');
-    ionIcon.setAttribute('name', 'trash');
-
-    ionItemOption.appendChild(ionIcon);
-    ionItemOptions.appendChild(ionItemOption);
-    ionItemSliding.appendChild(ionItem);
-    ionItemSliding.appendChild(ionItemOptions);
-    return ionItemSliding
-}
-
-function cancel() {
-    MODAL.dismiss(null, 'cancel');
-}
-
-function confirm() {
-    const input = document.querySelector('ion-input');
-    MODAL.dismiss(input.value, 'confirm');
-}
-function MostrarListaActividades() {
-    LISTA_ACTIVIDADES.innerHTML = "";
-    let actividades = JSON.parse(localStorage.getItem("actividades"));
-    if (actividades) {
-
-        actividades.forEach(elem => {
-            LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
-        })
-    }
-}
-
-function PrenderLoading(texto) {
-    loading.cssClass = 'my-custom-class';
-    loading.message = texto;
-    document.body.appendChild(loading);
-    loading.present();
-}
-
-function Alertar(titulo, subtitulo, mensaje) {
-    const alert = document.createElement('ion-alert');
-    alert.cssClass = 'my-custom-class';
-    alert.header = titulo;
-    alert.subHeader = subtitulo;
-    alert.message = mensaje;
-    alert.buttons = ['OK'];
-    document.body.appendChild(alert);
-    alert.present();
-}
-
-function MostrarToast(mensaje, duracion) {
-    const toast = document.createElement('ion-toast');
-    toast.message = mensaje;
-    toast.duration = duracion;
-    document.body.appendChild(toast);
-    toast.present();
-}
-
 MODAL.addEventListener('willDismiss', (event) => {
     if (event.detail.role === 'confirm') {
         const message = document.querySelector('#message');
         message.textContent = `Hello ${event.detail.data}!`;
     }
 });
-
 async function RefreshData(option) {
     switch (option) {
         case "REGISTRO":
@@ -151,19 +61,6 @@ async function RefreshData(option) {
             break;
     }
 }
-
-function Greeting() {
-    HOME_H2.innerHTML = "";
-    let hour = new Date().getHours()
-    if (hour >= 6 && hour <= 12) {
-        HOME_H2.innerHTML = `Buenos dias, ${localStorage.getItem("name")}!`;
-    } else if (hour >= 13 && hour <= 20) {
-        HOME_H2.innerHTML = `Buenas tardes, ${localStorage.getItem("name")}!`;
-    } else {
-        HOME_H2.innerHTML = `Buenas noches, ${localStorage.getItem("name")}!`;
-    }
-}
-
 function Resumen() {
     let actividades = JSON.parse(localStorage.getItem("actividades"));
     let diario = 0;
@@ -180,8 +77,7 @@ function Resumen() {
     CIRCULO_TIEMPO_DIARIO.innerHTML = `${diario}"`;
     CIRCULO_TIEMPO_TOTAL.innerHTML = `${total}"`;
 }
-
-const RegistrarActividad = async () => {
+async function RegistrarActividad() {
     PrenderLoading("Registrando actividad.");
     try {
         await SetRegistro();
@@ -194,8 +90,7 @@ const RegistrarActividad = async () => {
     }
     loading.dismiss();
 }
-
-const RegistrarUsuario = async () => {
+async function RegistrarUsuario () {
     PrenderLoading("Registrando usuario.");
     try {
         await SetUsuario();
@@ -211,7 +106,6 @@ const RegistrarUsuario = async () => {
     loading.dismiss();
 }
 function CrearMapa() {
-
     PrenderLoading("Cargando mapa")
     if(map != null){
         map.remove();
@@ -229,7 +123,7 @@ function CrearMapa() {
         loading.dismiss();
     }, 2000)
 }
-const IniciarSesion = async () => {
+async function IniciarSesion () {
     PrenderLoading("Iniciando sesion.");
     try {
         await Login();
@@ -243,14 +137,13 @@ const IniciarSesion = async () => {
     }
     loading.dismiss();
 }
-const PrepararModalRegistro = () => {
-    SetMaxFecha();
-    GetActividades();
-}
-const FiltroUltimoMes = () => {
+function FiltroUltimoMes () {
     let date1 = new Date();
     let date2 = new Date();
     LISTA_ACTIVIDADES.innerHTML = "";
+    FILTRO_MES.outline = "false";
+    FILTRO_SEMANA.outline = "true";
+    FLITRO_TODOS.outline = "true";
     date2.setMonth(date1.getMonth()-1);
     let actividades = JSON.parse(localStorage.getItem("actividades"));
     actividades.forEach(elem => {
@@ -259,10 +152,13 @@ const FiltroUltimoMes = () => {
         }
     })
 }
-const FiltroUltimaSemana = () => {
+function FiltroUltimaSemana () {
     let date1 = new Date();
     let date2 = new Date();
     LISTA_ACTIVIDADES.innerHTML = "";
+    FILTRO_MES.outline = "true";
+    FILTRO_SEMANA.outline = "false";
+    FLITRO_TODOS.outline = "true";
     date2.setDate(date1.getDate() - 7);
     let actividades = JSON.parse(localStorage.getItem("actividades"));
     actividades.forEach(elem => {
@@ -271,4 +167,26 @@ const FiltroUltimaSemana = () => {
         }
     })
 }
-
+function FiltroTodos () {
+    RefreshData("REGISTRO");
+    FILTRO_MES.outline = "true";
+    FILTRO_SEMANA.outline = "true";
+    FLITRO_TODOS.outline = "false";
+}
+function GetSession() {
+    return { apikey: localStorage.getItem("apikey"), iduser: localStorage.getItem("iduser") }
+}
+function MostrarFormLogin() {
+    INPUT_PAIS.style.display = "none";
+    BTN_REGISTRO.style.display = "none";
+    BTN_LOGIN.style.display = "block";
+}
+function MostrarFormRegistro() {
+    PoblarSelectPaises();
+    INPUT_PAIS.style.display = "block";
+    BTN_REGISTRO.style.display = "block";
+    BTN_LOGIN.style.display = "none";
+}
+function OcultarTabs() {
+    TABS.style.display = "none";
+}

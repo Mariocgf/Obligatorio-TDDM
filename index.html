@@ -81,9 +81,9 @@
                 </ion-header>
                 <ion-content fullscreen="true">
                     <div class="ion-margin-top">
-                        <ion-chip class="filtro" id="filtroTodos" onclick="RefreshData('REGISTRO')" data-value="todos">Todos</ion-chip>
+                        <ion-chip class="filtro" outline="false" id="filtroTodos" onclick="FiltroTodos()" data-value="todos">Todos</ion-chip>
                         <ion-chip class="filtro" id="filtroUltimaSemana" onclick="FiltroUltimaSemana()" data-value="us" outline="true">Ultima semana</ion-chip>
-                        <ion-chip class="filtro" id="filtroUltimoMes" data-value="um" outline="true">Ultimo mes</ion-chip>
+                        <ion-chip class="filtro" id="filtroUltimoMes" onclick="FiltroUltimoMes()" data-value="um" outline="true">Ultimo mes</ion-chip>
                     </div>
                     
                     <ion-list id="listaActividades"></ion-list>
@@ -100,7 +100,6 @@
                                 <ion-buttons slot="start">
                                     <ion-button onclick="cancel()">Cancel</ion-button>
                                 </ion-buttons>
-                                <!-- <ion-title>Welcome</ion-title> -->
                                 <ion-buttons slot="end">
                                     <ion-button onclick="RegistrarActividad()" strong="true">Registrar</ion-button>
                                 </ion-buttons>
@@ -213,6 +212,7 @@
     </script>
 
     <script src="js/variable.js"></script>
+    <script src="js/utilitys.js"></script>
     <script src="js/function.js"></script>
     <script src="js/api.js"></script>
     <script src="js/index.js"></script>

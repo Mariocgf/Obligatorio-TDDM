@@ -29,4 +29,7 @@ const CIRCULO_TIEMPO_DIARIO =  document.querySelector("#cirucloTiempoDiario");
 const CIRCULO_TIEMPO_TOTAL =  document.querySelector("#cirucloTiempoTotal");
 
 const FLITRO_TODOS = document.querySelector("#filtroTodos");
+const FILTRO_SEMANA = document.querySelector("#filtroUltimaSemana");
+const FILTRO_MES = document.querySelector("#filtroUltimoMes");
+
 let map = null;

@@ -36,7 +36,6 @@ async function GetPaises() {
     }
     localStorage.setItem("paises", JSON.stringify(aux));
 }
-
 async function SetUsuario() {
     let { usuario, password, pais } = TomarDatos();
     console.log(usuario.length)
@@ -58,13 +57,10 @@ async function SetUsuario() {
     SaveSession(data, usuario);
     ROUTER.push("/");
 }
-
 async function SetRegistro() {
     let header = GetSession();
-    let idActividad = INPUT_ACTIVIDAD.value;
+    let { idActividad, tiempo, fecha } = TomarDatos();
     let { iduser } = header;
-    let tiempo = INPUT_TIEMPO.value;
-    let fecha = INPUT_FECHA.value;
     if (!idActividad) {
         throw new Error("Seleccione una actividad.");
     }
@@ -101,7 +97,6 @@ async function Login() {
     await RefreshData();
     ROUTER.push("/");
 }
-
 async function DeleteRegistro(id) {
     await DoFetch("registros.php", "delete", "", GetSession(), `idRegistro=${id}`);
     await GetRegistros();
