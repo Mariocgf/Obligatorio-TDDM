@@ -1,13 +1,12 @@
 Inicio()
 
 function Inicio() {
-    GetPaises();
     BtnEvents();
     Eventos();
 }
 function BtnEvents() {
-    BTN_LOGIN.addEventListener("click", Login);
-    BTN_REGISTRO.addEventListener("click", SetUsuario);
+    //BTN_LOGIN.addEventListener("click", Login);
+    //BTN_REGISTRO.addEventListener("click", SetUsuario);
 }
 
 function FormatDate(fecha) {
@@ -46,23 +45,15 @@ function MostrarFormRegistro() {
     BTN_REGISTRO.style.display = "block";
     BTN_LOGIN.style.display = "none";
 }
-// function MostrarActividades() {
-//     MostrarListaActividades();
-//     VISTA_ACTIVIDADES.style.display = "block";
-//     VISTA_ACTIVIDADES_REGISTRO.style.display = "none";
-// }
-// function MostrarRegistroActividad() {
-//     SetMaxFecha();
-//     VISTA_ACTIVIDADES.style.display = "none";
-//     VISTA_ACTIVIDADES_REGISTRO.style.display = "block";
-// }
+
 function TomarDatos() {
-    let usuario = INPUT_ACTIVIDAD.querySelector("#iUsuario").value;
+    let usuario = INPUT_USUARIO.value;
     let password = INPUT_PASSWORD.value;
     let pais = INPUT_PAIS.value;
-    return { usuario: usuario,
+    return {
+        usuario: usuario,
         password: password,
-        pais: pais 
+        pais: pais
     };
 }
 
@@ -75,28 +66,20 @@ function Navegar(e) {
         MostrarFormLogin();
     }
     else if (RUTA == "/") {
-        MostrarListaActividades();
+        Greeting();
+        Resumen();
     } else if (RUTA == "/login") {
         OcultarTabs();
         MostrarFormLogin();
+        GetPaises();
     } else if (RUTA == "/actividades") {
-        ACTIVIDADES.style.display = "block";
         MostrarListaActividades();
-        GetActividades();
+    } else if (RUTA == "/mapa") {
+        CrearMapa();
     }
 }
 function OcultarTabs() {
     TABS.style.display = "none";
 }
 
-setTimeout(()=>{
-    var map = L.map('map').setView([-21.7917054,-59.4766675], 3);
-    JSON.parse(localStorage.getItem("paises")).forEach(elem => {
-        L.marker([elem.latitude, elem.longitude]).addTo(map).bindPopup(`<b>${elem.name}</b><br>Cantidad de usuarios: ${elem.cantidadDeUsuarios}`).openPopup();
 
-    })
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-}, 2000)

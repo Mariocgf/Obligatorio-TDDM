@@ -14,24 +14,23 @@ async function GetRegistros() {
 
 }
 async function GetActividades() {
-    SetMaxFecha();
     INPUT_ACTIVIDAD.innerHTML = "";
     if (localStorage.getItem("apikey")) {
         let data = await DoFetch("actividades.php", "get", {}, GetSession());
         data.actividades.forEach(elem => { INPUT_ACTIVIDAD.innerHTML += `<ion-select-option value="${elem.id}">${elem.nombre} </ion-select-option>` })
     }
 }
-async function GetPaises(){
+async function GetPaises() {
     const aux = [];
     let paises = await DoFetch("paises.php");
-    if(localStorage.getItem("apikey")){
+    if (localStorage.getItem("apikey")) {
 
-        let info = await DoFetch("usuariosPorPais.php",'get',{}, GetSession());
+        let info = await DoFetch("usuariosPorPais.php", 'get', {}, GetSession());
         paises.paises.forEach(elem => {
             elem.cantidadDeUsuarios = (info.paises.find(data => data.name == elem.name)).cantidadDeUsuarios;
             aux.push(elem);
         });
-    }else{
+    } else {
         aux.push(...paises.paises)
         localStorage.setItem("paises", JSON.stringify(aux))
     }
@@ -40,20 +39,41 @@ async function GetPaises(){
 
 async function SetUsuario() {
     let { usuario, password, pais } = TomarDatos();
-    console.log(usuario, password, pais)
-    let data = await DoFetch("usuarios.php", "post", new Usuario(usuario, password, pais));
-    console.log(data)
-    SaveSession(data);
-    NAV.push("page-home");
+    console.log(usuario.length)
+    if (usuario.length < 3) {
+        throw new Error("Ingrese un nombre valido.");
+    }
+    if (password.length < 8) {
+        throw new Error("La contraseña debe tener al menos 8 caracteres");
+    }
+    if (!pais) {
+        throw new Error("Seleccione un pais.");
+    }
+    let body = {
+        usuario: usuario,
+        password: password,
+        pais: pais
+    }
+    let data = await DoFetch("usuarios.php", "post", body);
+    SaveSession(data, usuario);
+    ROUTER.push("/");
 }
 
 async function SetRegistro() {
-    PrenderLoading("Registrando actividad.");
     let header = GetSession();
     let idActividad = INPUT_ACTIVIDAD.value;
     let { iduser } = header;
     let tiempo = INPUT_TIEMPO.value;
     let fecha = INPUT_FECHA.value;
+    if (!idActividad) {
+        throw new Error("Seleccione una actividad.");
+    }
+    if (!tiempo) {
+        throw new Error("Ingrese un tiempo.")
+    }
+    if (!fecha) {
+        throw new Error("Ingrese una fecha.");
+    }
     FormatDate(INPUT_FECHA.value);
     let body = {
         idActividad: idActividad,
@@ -62,11 +82,7 @@ async function SetRegistro() {
         fecha: fecha
     }
     await DoFetch("registros.php", "post", body, header);
-    loading.dismiss();
-    MODAL.dismiss();
-    MostrarToast("Actividad registrada con exito!", 2000);
-    await GetRegistros();
-    MostrarListaActividades();
+
 }
 async function Login() {
     let { usuario, password } = TomarDatos();
@@ -74,18 +90,21 @@ async function Login() {
         usuario: usuario,
         password: password
     }
-    try {
-        let data = await DoFetch("login.php", "post", body)
-        SaveSession(data);
-        ROUTER.push("/");
-    } catch (error) {
-        MostrarToast(error.message, 2000)
+    if (usuario.length < 3) {
+        throw new Error("Ingrese un nombre valido.");
     }
+    if (password.length < 8) {
+        throw new Error("La contraseña debe tener al menos 8 caracteres");
+    }
+    let data = await DoFetch("login.php", "post", body)
+    SaveSession(data, usuario);
+    await RefreshData();
+    ROUTER.push("/");
 }
 
 async function DeleteRegistro(id) {
     await DoFetch("registros.php", "delete", "", GetSession(), `idRegistro=${id}`);
     await GetRegistros();
     MostrarListaActividades();
-    MostrarToast("Actividad eliminada con exito!",2000);
+    MostrarToast("Actividad eliminada con exito!", 2000);
 }

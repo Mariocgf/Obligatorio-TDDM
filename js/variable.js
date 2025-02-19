@@ -23,3 +23,10 @@ const loading = document.createElement('ion-loading');
 
 const TABS = document.querySelector("#tabs");
 const MODAL = document.querySelector('ion-modal');
+
+const HOME_H2 = document.querySelector("#greeting");
+const CIRCULO_TIEMPO_DIARIO =  document.querySelector("#cirucloTiempoDiario");
+const CIRCULO_TIEMPO_TOTAL =  document.querySelector("#cirucloTiempoTotal");
+
+const FLITRO_TODOS = document.querySelector("#filtroTodos");
+let map = null;

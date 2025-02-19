@@ -23,7 +23,7 @@ async function DoFetch(endpoint, method, body, header, param) {
         let data = await response.json();
         return data;
     } else {
-        throw new Error("Credenciales invalidas.");
+        throw new Error(response.status);
     }
 }
 function SetMaxFecha() {
@@ -32,29 +32,21 @@ function SetMaxFecha() {
     let mes = fecha.getMonth() + 1;
     let dia = fecha.getDate();
     INPUT_FECHA.max = `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
+    INPUT_FECHA.value = `${anio}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
 }
-function Logout() {
+async function Logout() {
     localStorage.clear();
+    await GetPaises();
     ROUTER.push("/login");
 }
 function CheckSession() {
     return !localStorage.getItem("apikey") ? false : true;
 }
 
-function SaveSession(data) {
+function SaveSession(data, usuario) {
     localStorage.setItem("apikey", data.apiKey);
     localStorage.setItem("iduser", data.id);
-}
-
-function ErrorMsg(status, obj) {
-    switch (status) {
-        case 400:
-            throw new Error("")
-        case 404:
-            throw new Error(`${obj} no encontrado.`);
-        case 409:
-            throw new Error("Credenciales no valida");
-    }
+    localStorage.setItem("name", usuario)
 }
 
 function CreateItemSliding(elem) {
@@ -101,18 +93,20 @@ function confirm() {
     const input = document.querySelector('ion-input');
     MODAL.dismiss(input.value, 'confirm');
 }
-function MostrarListaActividades(){
+function MostrarListaActividades() {
     LISTA_ACTIVIDADES.innerHTML = "";
     let actividades = JSON.parse(localStorage.getItem("actividades"));
-    actividades.forEach(elem => {
-        LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
-    })
+    if (actividades) {
+
+        actividades.forEach(elem => {
+            LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
+        })
+    }
 }
 
 function PrenderLoading(texto) {
     loading.cssClass = 'my-custom-class';
     loading.message = texto;
-    //loading.duration = 2000;
     document.body.appendChild(loading);
     loading.present();
 }
@@ -142,3 +136,139 @@ MODAL.addEventListener('willDismiss', (event) => {
         message.textContent = `Hello ${event.detail.data}!`;
     }
 });
+
+async function RefreshData(option) {
+    switch (option) {
+        case "REGISTRO":
+            await GetRegistros();
+            break;
+        case "PAISES":
+            await GetPaises();
+            break;
+        default:
+            await GetPaises();
+            await GetRegistros();
+            break;
+    }
+}
+
+function Greeting() {
+    HOME_H2.innerHTML = "";
+    let hour = new Date().getHours()
+    if (hour >= 6 && hour <= 12) {
+        HOME_H2.innerHTML = `Buenos dias, ${localStorage.getItem("name")}!`;
+    } else if (hour >= 13 && hour <= 20) {
+        HOME_H2.innerHTML = `Buenas tardes, ${localStorage.getItem("name")}!`;
+    } else {
+        HOME_H2.innerHTML = `Buenas noches, ${localStorage.getItem("name")}!`;
+    }
+}
+
+function Resumen() {
+    let actividades = JSON.parse(localStorage.getItem("actividades"));
+    let diario = 0;
+    let total = 0;
+    if (actividades) {
+        let date = new Date()
+        actividades.forEach(elem => {
+            total += elem.tiempo;
+            if (date.toLocaleDateString("en-CA") == elem.fecha) {
+                diario += elem.tiempo;
+            }
+        })
+    }
+    CIRCULO_TIEMPO_DIARIO.innerHTML = `${diario}"`;
+    CIRCULO_TIEMPO_TOTAL.innerHTML = `${total}"`;
+}
+
+const RegistrarActividad = async () => {
+    PrenderLoading("Registrando actividad.");
+    try {
+        await SetRegistro();
+        await RefreshData("REGISTRO");
+        MostrarListaActividades();
+        MostrarToast("Actividad registrada con exito!", 2000);
+        MODAL.dismiss();
+    } catch (error) {
+        MostrarToast(error.message, 2000);
+    }
+    loading.dismiss();
+}
+
+const RegistrarUsuario = async () => {
+    PrenderLoading("Registrando usuario.");
+    try {
+        await SetUsuario();
+        await GetPaises();
+        MostrarToast("Usuario registrado con exito!", 2000);
+    } catch (error) {
+        if (error.message == "409") {
+            MostrarToast("Usuario ya registrado.", 2000);
+        }else{
+            MostrarToast(error.message, 2000);
+        }
+    }
+    loading.dismiss();
+}
+function CrearMapa() {
+
+    PrenderLoading("Cargando mapa")
+    if(map != null){
+        map.remove();
+    }
+    setTimeout(() => {
+        map = L.map('map').setView([-21.7917054, -59.4766675], 3);
+        JSON.parse(localStorage.getItem("paises")).forEach(elem => {
+            L.marker([elem.latitude, elem.longitude]).addTo(map).bindPopup(`<b>${elem.name}</b><br>Cantidad de usuarios: ${elem.cantidadDeUsuarios}`).openPopup();
+            
+        })
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        loading.dismiss();
+    }, 2000)
+}
+const IniciarSesion = async () => {
+    PrenderLoading("Iniciando sesion.");
+    try {
+        await Login();
+        await GetPaises();
+    } catch (error) {
+        if (error.message == "409") {
+            MostrarToast("Credenciales invalidas.", 2000);
+        }else{
+            MostrarToast(error.message, 2000);
+        }
+    }
+    loading.dismiss();
+}
+const PrepararModalRegistro = () => {
+    SetMaxFecha();
+    GetActividades();
+}
+const FiltroUltimoMes = () => {
+    let date1 = new Date();
+    let date2 = new Date();
+    LISTA_ACTIVIDADES.innerHTML = "";
+    date2.setMonth(date1.getMonth()-1);
+    let actividades = JSON.parse(localStorage.getItem("actividades"));
+    actividades.forEach(elem => {
+        if(elem.fecha <= date1.toLocaleDateString("en-CA") && elem.fecha >= date2.toLocaleDateString("en-CA")){
+            LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
+        }
+    })
+}
+const FiltroUltimaSemana = () => {
+    let date1 = new Date();
+    let date2 = new Date();
+    LISTA_ACTIVIDADES.innerHTML = "";
+    date2.setDate(date1.getDate() - 7);
+    let actividades = JSON.parse(localStorage.getItem("actividades"));
+    actividades.forEach(elem => {
+        if(elem.fecha <= date1.toLocaleDateString("en-CA") && elem.fecha >= date2.toLocaleDateString("en-CA")){
+            LISTA_ACTIVIDADES.appendChild(CreateItemSliding(elem));
+        }
+    })
+}
+

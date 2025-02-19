@@ -2,9 +2,38 @@
   min-height: 100vh;
 }
 
-.fix{
-    position: fixed;
-    /* bottom: 0px; */
+.fix {
+  position: fixed;
+
 }
 
-#map { height: 100vh; }
+#map {
+  height: 100vh;
+}
+
+.circle-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  border: 4px solid #3880ff;
+  color: #3880ff;
+  background-color: transparent;
+  font-size: 24px;
+  text-align: center;
+}
+
+.circle-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.center {
+  justify-items: center;
+}
+

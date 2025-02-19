@@ -19,12 +19,57 @@
 </head>
 
 <body>
+    
     <ion-router id="ruteo">
-        <ion-route url="/" component="actividad"></ion-route>
-        <ion-route url="/login" component="login"></ion-route>
+        <ion-route url="/" component="home"></ion-route>
+        <ion-route url="/actividades" component="actividad"></ion-route>
         <ion-route url="/mapa" component="mapa"></ion-route>
+        <ion-route url="/login" component="login"></ion-route>
     </ion-router>
     <ion-tabs>
+
+        <ion-tab tab="home">
+            <ion-nav id="home-nav"></ion-nav>
+            <div id="home-page">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-title >Home</ion-title>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content fullscreen="true" class="tabs-style">
+                    <h2 id="greeting" class="ion-padding"></h2>
+                    <ion-card>
+                        <ion-card-header>
+                          <ion-card-title>Resumen diario</ion-card-title>
+                          <ion-card-subtitle>Tiempo empleado</ion-card-subtitle>
+                        </ion-card-header>
+                      
+                        <ion-card-content class="center">
+                            <ion-card class="circle-card">
+                                <div class="circle-content" id="cirucloTiempoDiario">
+                                  
+                                </div>
+                              </ion-card>
+                        </ion-card-content>
+                      </ion-card>
+                      <ion-card>
+                        <ion-card-header>
+                          <ion-card-title>Resumen total</ion-card-title>
+                          <ion-card-subtitle>Tiempo empleado</ion-card-subtitle>
+                        </ion-card-header>
+                      
+                        <ion-card-content class="center">
+                            <ion-card class="circle-card">
+                                <div class="circle-content" id="cirucloTiempoTotal">
+                                  
+                                </div>
+                              </ion-card>
+                        </ion-card-content>
+                      </ion-card>
+                      
+                </ion-content>
+            </div>
+        </ion-tab>
 
         <ion-tab tab="actividad">
             <ion-nav id="actividad-nav"></ion-nav>
@@ -34,12 +79,18 @@
                         <ion-title>Actividades</ion-title>
                     </ion-toolbar>
                 </ion-header>
-                <ion-content class="tabs-style">
+                <ion-content fullscreen="true">
+                    <div class="ion-margin-top">
+                        <ion-chip class="filtro" id="filtroTodos" onclick="RefreshData('REGISTRO')" data-value="todos">Todos</ion-chip>
+                        <ion-chip class="filtro" id="filtroUltimaSemana" onclick="FiltroUltimaSemana()" data-value="us" outline="true">Ultima semana</ion-chip>
+                        <ion-chip class="filtro" id="filtroUltimoMes" data-value="um" outline="true">Ultimo mes</ion-chip>
+                    </div>
+                    
                     <ion-list id="listaActividades"></ion-list>
 
 
                     <ion-fab class="fix" vertical="bottom" horizontal="end">
-                        <ion-fab-button id="open-modal" onclick="GetActividades()">
+                        <ion-fab-button id="open-modal" onclick="PrepararModalRegistro()">
                             <ion-icon name="add"></ion-icon>
                         </ion-fab-button>
                     </ion-fab>
@@ -51,7 +102,7 @@
                                 </ion-buttons>
                                 <!-- <ion-title>Welcome</ion-title> -->
                                 <ion-buttons slot="end">
-                                    <ion-button onclick="SetRegistro()" strong="true">Registrar</ion-button>
+                                    <ion-button onclick="RegistrarActividad()" strong="true">Registrar</ion-button>
                                 </ion-buttons>
                             </ion-toolbar>
                         </ion-header>
@@ -112,14 +163,19 @@
                         <ion-select class="ion-margin-bottom" label="Pais" interface="popover"
                             label-placement="floating" fill="outline" id="iPais"></ion-select>
 
-                        <ion-button expand="full" id="btnLogin" shape="round">Login</ion-button>
-                        <ion-button expand="full" id="btnRegistro" shape="round">Registro</ion-button>
+                        <ion-button expand="full" onclick="IniciarSesion()" id="btnLogin" shape="round">Login</ion-button>
+                        <ion-button expand="full" onclick="RegistrarUsuario()" id="btnRegistro" shape="round">Registro</ion-button>
                     </div>
                 </ion-content>
             </div>
         </ion-tab>
 
         <ion-tab-bar slot="bottom" id="tabs">
+
+            <ion-tab-button tab="home">
+                <ion-icon name="home-outline"></ion-icon>
+                Home
+            </ion-tab-button>
 
             <ion-tab-button tab="actividad">
                 <ion-icon name="barbell-outline"></ion-icon>
@@ -140,6 +196,9 @@
     </ion-tabs>
 
     <script>
+        const homeNav = document.querySelector('#home-nav');
+        const homePage = document.querySelector('#home-page');
+        homeNav.root = homePage;
 
         const actividadNav = document.querySelector('#actividad-nav');
         const actividadPage = document.querySelector('#actividad-page');
@@ -152,6 +211,7 @@
         const mapaNav = document.querySelector("#mapa-nav");
         const mapaPage = document.querySelector("#mapa-page");
     </script>
+
     <script src="js/variable.js"></script>
     <script src="js/function.js"></script>
     <script src="js/api.js"></script>
